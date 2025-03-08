@@ -1,16 +1,38 @@
-# This is a sample Python script.
+# main.py
+######################################################################
+import sys
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import pygame
+from sys import exit
+import roads
+
+def hello_world():
+    print(f'Hello World :3')
+
+def main():
+    hello_world()
+
+    # Setup Pygame
+    pygame.init()
+    screen = pygame.display.set_mode((800, 400))
+    pygame.display.set_caption('Traffic Simulator')
+    clock = pygame.time.Clock()
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        myNode = roads.Node()
+        screen.blit(myNode.pygame_surface, (5,5))
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+        # draw all our elemetns
+        # update everythin
+        pygame.display.update()
+        clock.tick(60)
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    main()
