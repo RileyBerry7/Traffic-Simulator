@@ -26,7 +26,8 @@ class Node:
 ############################################################################################
 
 class Lane:
-    def __init__(self, start: tuple[float, float], end: tuple[float, float]):
+    def __init__(self, start: tuple[float, float]=(0,0), end: tuple[float, float]=(0,0)):
+        self.next_lane  = None
         self.start_node = Node(start)
         self.end_node   = Node(end)
         self.length     = math.sqrt((self.end_node.coordinates[0] - self.start_node.coordinates[0]) ** 2 +
@@ -50,6 +51,8 @@ class Road:
     def __init__(self, right_lanes: [Lane], left_lanes: [Lane]):
         self.right_lanes = right_lanes
         self.left_lanes  = left_lanes
+        self.start_coord = right_lanes[0].start_node.coordinates
+        self.end_coord   = right_lanes[0].end_node.coordinates
 
     def draw(self, screen):
 
@@ -61,9 +64,9 @@ class Road:
         second_corner = (0, 0)
 
     ############################################################################
-    # RIGHT LANES:
+    # LEFT LANES:
         # Iterate and draw all right lanes
-        for lane in self.right_lanes:
+        for lane in self.left_lanes:
 
             # Calculate individual lane offset based on distance between lanes
             offset = -25
@@ -105,14 +108,14 @@ class Road:
 
         # Draw perpendicular start
         pygame.draw.line(screen,
-                   'Red',
+                   'Blue',
                          first_corner,
                          lane_line_start,
                          5)
 
         # Draw perpendicular end
         pygame.draw.line(screen,
-                         'Blue',
+                         'Red',
                          second_corner,
                          lane_line_end,
                          5)
@@ -122,10 +125,10 @@ class Road:
         second_corner = lane_line_end
 
     ############################################################################
-    # LEFT LANES:
+    # RIGHT LANES:
         # Iterate and draw all left lanes
-        if self.left_lanes:
-            for lane in self.left_lanes:
+        if self.right_lanes:
+            for lane in self.right_lanes:
                 # Calculate individual lane offset based on distance between lanes
                 offset = -25
 
@@ -161,15 +164,15 @@ class Road:
             # Draw perpendicular start
             pygame.draw.line(screen,
                              'Red',
-                             second_corner,
-                             lane_line_start,
+                             first_corner,
+                             lane_line_end,
                              5)
 
             # Draw perpendicular end
             pygame.draw.line(screen,
                              'Blue',
-                             first_corner,
-                             lane_line_end,
+                             second_corner,
+                             lane_line_start,
                              5)
 
     ##################
