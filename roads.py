@@ -120,23 +120,24 @@ class Road:
         half_lane          = lane_width/2
         line_width         = 4
 
-        ############################################################################
+        ################################################################################################################
         # Left Lanes
 
         if self.left_lanes: # There are left lane(s)
 
             # Add Middle Yellow Line - calculate proper location -> then save it
-            buffer_point = self.left_lanes[0].start_node.coordinates  # grab line start
-            buffer_slope = user_tools.perpendicularize_slope(self.left_lanes[0].slope)  # calc perpendicular slope
+            buffer_point = self.left_lanes[0].start_node.coordinates                                # grab line start
+            buffer_slope = user_tools.perpendicularize_slope(self.left_lanes[0].slope)              # calc perpendicular slope
             buffer_translation = user_tools.calculate_slope_translation(buffer_slope, half_lane-7)  # calc translation
-            buffer_point = user_tools.add_translation(buffer_point, buffer_translation)  # add  translation
-            buffer_slope = buffer_point  # save point in buffer
-            buffer_point = self.left_lanes[0].end_node.coordinates  # grab line end
-            buffer_point = user_tools.add_translation(buffer_point, buffer_translation)  # add  translation
-            lines_to_draw.append((median_line_color, buffer_point, buffer_slope))  # Add  points to line list
+            buffer_point = user_tools.add_translation(buffer_point, buffer_translation)             # add  translation
+            buffer_slope = buffer_point                                                             # save point in buffer
+            buffer_point = self.left_lanes[0].end_node.coordinates                                  # grab line end
+            buffer_point = user_tools.add_translation(buffer_point, buffer_translation)             # add  translation
+            lines_to_draw.append((median_line_color, buffer_point, buffer_slope))                    # Add  points to line list
 
             # Add Every Left White Lane Seperator
             for lane in self.left_lanes:
+
                 # Add Outer White Line - calculate proper location -> then save it
                 buffer_point = lane.start_node.coordinates                                          # grab line start
                 buffer_slope = user_tools.perpendicularize_slope(lane.slope)                        # calc perp slope
@@ -155,7 +156,7 @@ class Road:
         else: # No left lanes
             median_line_color = 'White'
 
-        ############################################################################
+        ################################################################################################################
         # Right Lanes
 
         # Add Middle Yellow Line - calculate proper location -> then save it
@@ -186,7 +187,7 @@ class Road:
         lines_to_draw.append(('Red', lines_to_draw[-1][1], lines_to_draw[0][1]))
         lines_to_draw.append(('Blue', lines_to_draw[-2][2], lines_to_draw[0][2]))
 
-        ############################################################################
+        ################################################################################################################
         # Draw All Lines onto Geometry Attribute
 
         for line in lines_to_draw:
