@@ -69,7 +69,9 @@ class four_way_stop:
         calculated_lanes = []
 
         left_to_right_lane = Lane(self.left_input, self.right_output)
+        right_to_left_lane = Lane(self.right_input, self.left_output)
         calculated_lanes.append(left_to_right_lane)
+        calculated_lanes.append(right_to_left_lane)
 
         return calculated_lanes
 
