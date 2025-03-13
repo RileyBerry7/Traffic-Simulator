@@ -21,6 +21,7 @@ This is supposed to be a program that is able to simulate vehicle traffic at the
 (overambitious)
 
 ### Progress
+![image alt](https://github.com/RileyBerry7/Traffic-Simulator/blob/d17c45cca6dbfe82c56ca5547dc203eb96f0b2d2/screenshots/3-12-24.png)
 
 ### Requirements
 - Python 3.11
