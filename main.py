@@ -8,6 +8,7 @@ from roads import Node
 from roads import Lane
 from roads import Road
 from vehicles import Car
+from intersections import four_way_stop
 
 def hello_world():
     print(f'Hello World :3')
@@ -33,33 +34,42 @@ def main():
     vehicle_overlay = pygame.surface.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
     vehicle_overlay.fill((0, 0, 0, 0))
 
+    # Left lanes
+    left_lane0 = Lane(Node((1000, 100)), Node((100, 350)))  # Flipped start and end nodes for Lane 0
+    left_lane1 = Lane(Node((1010, 150)), Node((110, 400)))  # Flipped start and end nodes for Lane 1
+    left_lane2 = Lane(Node((1020, 200)), Node((120, 450)))  # Flipped start and end nodes for Lane 2
 
-
-    # Road Testing
-    lane4 = Lane((100, 350), (1000, 100))  # Original lane
-    lane5 = Lane((110, 400), (1010, 150))  # Second parallel lane
-    lane6 = Lane((120, 450), (1020, 200))  # Third parallel lane
-
-    # Additional parallel lanes (with slight vertical offset)
-    lane1 = Lane((1030, 250), (130, 500))  # Fourth parallel lane
-    lane2 = Lane((1040, 300), (140, 550))  # Fifth parallel lane
-    lane3 = Lane((1050, 350), (150, 600))  # Sixth parallel lane
+    # Right lanes
+    right_lane0 = Lane(Node((130, 500)), Node((1030, 250)))  # Flipped start and end nodes for Lane 0
+    right_lane1 = Lane(Node((140, 550)), Node((1040, 300)))  # Flipped start and end nodes for Lane 1
+    right_lane2 = Lane(Node((150, 600)), Node((1050, 350)))  # Flipped start and end nodes for Lane 2
 
     # Create the road with both right and left lanes (populate left lanes with the new parallel lanes)
 
     background = pygame.surface.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
     background.fill((10, 10, 10))
 
-    road = Road([lane1, lane2, lane3], [lane4, lane5, lane6])
+    road = Road([right_lane0, right_lane1, right_lane2], [left_lane0, left_lane1, left_lane2])
     road.draw(background)
 
     # Car Testing
     car = Car(road, 'Right', 1)
-    car.coordinates = lane2.end_node.coordinates
+    car.coordinates = right_lane0.start_node.coordinates
     counter = 0
+
+    # Intersection Testing
+    intersections = four_way_stop()
+
+    intersections.left_input = road.right_lanes[0].end_node
+    intersections.right_output = Node((1275, 240))
+    # lane7 = Lane(intersections.left_input, intersections.right_output)
+
+    # intersections.calculate_lanes("right", "right")
 
     # Game Loop
     while True:
+
+
 
         # Event_Checker Loop
         for event in pygame.event.get():
@@ -95,6 +105,7 @@ def main():
         screen.blit(vehicle_overlay, (0, 0))
 
 
+        intersections.draw(screen)
 
         # Update Display
         pygame.display.update()

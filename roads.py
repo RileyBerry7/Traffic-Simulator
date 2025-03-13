@@ -13,23 +13,43 @@ from scipy.linalg import sqrtm
 
 class Node:
     def __init__(self, coordinates: tuple[float, float]=(0,0)):
+
+        # Graph relationships
+        self.next_node: Node = None
+        self.prev_node: Node = None
+        self.curr_lane: Node = None
+        self.in_intersection = False
+        self.intersection_connections = []
+
+        # Rendering Attributes
         self.size = 30
         self.color = 'Red'
         self.coordinates = coordinates
         self.geometry =  pygame.Surface((self.size, self.size), pygame.SRCALPHA)
         self.geometry.fill((0, 0, 0, 0)) # transparent rectangle
 
+
+    def set_next_node(self, next_node):
+        """Always changes index 0 of intersection_connections"""
+        self.next_node = next_node
+        self.intersection_connections[0] = next_node
+
     def draw(self, screen):
         # Draw the circle centered in the node surface
         pygame.draw.circle(screen, self.color,self.coordinates, self.size)
 
+
 ############################################################################################
 
 class Lane:
-    def __init__(self, start: tuple[float, float]=(0,0), end: tuple[float, float]=(0,0)):
-        self.next_lane  = None
-        self.start_node = Node(start)
-        self.end_node   = Node(end)
+    def __init__(self, start_node: Node, end_node: Node):
+
+        # Node Initialization
+        self.start_node = start_node
+        self.end_node   = end_node
+        self.start_node.next_node = end_node
+        self.start_node.curr_lane = self
+
         self.length     = math.sqrt((self.end_node.coordinates[0] - self.start_node.coordinates[0]) ** 2 +
                                    (self.end_node.coordinates[1] - self.start_node.coordinates[1]) ** 2)
 
@@ -106,16 +126,16 @@ class Road:
         lane_line_end = (lane.end_node.coordinates[0] + offset_x,
                             lane.end_node.coordinates[1] + offset_y)
 
-        # Draw perpendicular start
+        # Draw perpendicular Start for Left Lanes
         pygame.draw.line(screen,
-                   'Blue',
+                   'Red',
                          first_corner,
                          lane_line_start,
                          5)
 
-        # Draw perpendicular end
+        # Draw perpendicular End for Left Lanes
         pygame.draw.line(screen,
-                         'Red',
+                         'Blue',
                          second_corner,
                          lane_line_end,
                          5)
@@ -161,16 +181,16 @@ class Road:
             lane_line_end = (lane.end_node.coordinates[0] + offset_x,
                              lane.end_node.coordinates[1] + offset_y)
 
-            # Draw perpendicular start
+            # Draw perpendicular End for Right lanes
             pygame.draw.line(screen,
-                             'Red',
+                             'Blue',
                              first_corner,
                              lane_line_end,
                              5)
 
-            # Draw perpendicular end
+            # Draw perpendicular Start for Right lanes
             pygame.draw.line(screen,
-                             'Blue',
+                             'Red',
                              second_corner,
                              lane_line_start,
                              5)
