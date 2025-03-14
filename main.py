@@ -4,11 +4,12 @@ import sys
 
 import pygame
 from sys import exit
-from roads import Node
-from roads import Lane
-from roads import Road
+from road import Node
+from road import Lane
+from road import Road
 from vehicles import Car
 from intersections import four_way_stop
+import user_tools
 
 
 
@@ -56,7 +57,8 @@ def main():
     # hello world test lol
     hello_world()
 
-
+    architect = user_tools.road_builder
+    new_road = architect.build_road((1,1),(900,900), "Two-Lane Road")
 
     # # Left lanes
 
@@ -74,9 +76,12 @@ def main():
     background = pygame.surface.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
     background.fill((10, 10, 10))
 
-    road = Road([right_lane0, right_lane1], [left_lane0, left_lane1])
+    road = Road([right_lane0, right_lane1], [left_lane0, left_lane1], "Two-Lane Road" )
     road.build_geometry()
     road.draw(background)
+
+    new_road.build_geometry()
+    new_road.draw(background)
 
     # Car Testing
     car = Car(road, 'Right', 0)

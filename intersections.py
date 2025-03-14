@@ -1,8 +1,8 @@
 # intersections.py
 
-from roads import Road
-from roads import Lane
-from roads import Node
+from road import Road
+from road import Lane
+from road import Node
 
 # Intersection between two 2-way roads, with each incoming lane has 3 possible paths
 class four_way_stop:
