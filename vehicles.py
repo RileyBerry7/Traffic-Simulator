@@ -13,7 +13,7 @@ class Vehicle:
     def __init__(self, current_road: Road, direction: str='Right', lane_index: int=0, length_along_lane:float=0):
         # Physical attributes
         self.length       = 10
-        self.top_speed    = 6
+        self.top_speed    = 70
         self.acceleration = 0
         self.velocity     = 0
         self.is_hov = True
@@ -73,7 +73,7 @@ class Vehicle:
 
 
     def draw(self, screen):
-        pygame.draw.circle(screen, self.color,self.coordinates, 15)
+        pygame.draw.circle(screen, self.color,self.coordinates, 30)
 
 
 class Car(Vehicle):

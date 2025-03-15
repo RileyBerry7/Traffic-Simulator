@@ -96,7 +96,7 @@ class Road:
         self.end_coord   = right_lanes[0].end_node.coordinates
 
         # Geometry Data (surface to render the road)
-        self.geometry = pygame.Surface((1400, 1000), pygame.SRCALPHA)
+        self.geometry = pygame.Surface((17200, 10300), pygame.SRCALPHA)
         self.geometry.fill((0, 0, 0, 0))  # Transparent surface for road rendering
         self.build_geometry()
 
@@ -120,12 +120,16 @@ class Road:
         import user_tools
 
         # Subject to Change based on road_type
+        scale = 10
         median_line_color = self.road_type("median_line_color")          # Color for the median (middle) line
+        shoulder_width = self.road_type("shoulder_width") * scale
         divider_line_color = 'White'          # Color for the lane divider lines
         lines_to_draw = []                     # List of lines to be drawn on the road
-        lane_width = self.road_type("lane_width")                        # The width of each lane
+        lane_width = self.road_type("lane_width") * scale                 # The width of each lane
         half_lane = lane_width / 2             # Half the lane width for positioning the lines
         line_width = 4                         # Width of the lines (for divider lines)
+
+        corners = []
 
         ################################################################################################################
         # Left Lanes
@@ -156,6 +160,13 @@ class Road:
             corner_buffer = lines_to_draw[-1][1]
             lines_to_draw.append(('Red', lines_to_draw[-1][2], lines_to_draw[0][2]))
             lines_to_draw.append(('Blue', corner_buffer, lines_to_draw[0][1]))
+
+            # Save Both Left Corners
+            buffer_translation = user_tools.calculate_slope_translation(
+                            user_tools.perpendicularize_slope(self.right_lanes[0].slope),shoulder_width)
+            buffer_point = user_tools.add_translation(lines_to_draw[-3][1], buffer_translation, True)
+            corners.append(buffer_point)
+            corners.append(user_tools.add_translation(lines_to_draw[-3][2], buffer_translation, True))
 
         else:  # If no left lanes, set median line color to white
             median_line_color = 'White'
@@ -188,7 +199,18 @@ class Road:
         lines_to_draw.append(('Red', lines_to_draw[-1][1], lines_to_draw[0][1]))
         lines_to_draw.append(('Blue', lines_to_draw[-2][2], lines_to_draw[0][2]))
 
+        # Save Both Right Corners
+        buffer_translation = user_tools.calculate_slope_translation(
+            user_tools.perpendicularize_slope(self.right_lanes[0].slope), shoulder_width)
+        buffer_point = user_tools.add_translation(lines_to_draw[-3][2], buffer_translation)
+        corners.append(buffer_point)
+        corners.append(user_tools.add_translation(lines_to_draw[-3][1], buffer_translation))
+
         ################################################################################################################
+
+        # Draw rotated rectangle
+        pygame.draw.polygon(self.geometry, 'gray50', corners)
+
         # Draw All Lines onto Geometry Attribute
         for line in lines_to_draw:
             pygame.draw.line(self.geometry, line[0], line[1], line[2], line_width)

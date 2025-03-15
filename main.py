@@ -10,27 +10,48 @@ from road import Road
 from vehicles import Car
 from intersections import four_way_stop
 import user_tools
+import world_map
+
 
 
 
 def hello_world():
     print(f'Hello World :3')
 
-# Screen Setup
-SCREEN_WIDTH  = 1400
-SCREEN_HEIGHT = 1000
-SCREEN_COLOR  = (10, 10, 10)
+
+
+
 
 # Setup Pygame
 pygame.init()
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-screen.fill(SCREEN_COLOR)  # White background
+
+
+
+# Screen Setup
+# screen = pygame.display.set_mode((100, 100))
+
+screen_info   = pygame.display.Info()
+SCREEN_WIDTH  = screen_info.current_w
+SCREEN_HEIGHT = screen_info.current_h
+SCREEN_COLOR  = (10, 10, 10)
+
+# Reduce height slightly to fit within the visible screen area
+window_height = SCREEN_HEIGHT - 50  # Adjust this value if needed
+window_width  = SCREEN_WIDTH
+
+# Create a resizable window that fits within the screen
+display_window = pygame.display.set_mode((window_width, window_height), pygame.RESIZABLE)
+display_window.fill(SCREEN_COLOR)  # White background
 pygame.display.set_caption('Traffic Simulator')
 clock = pygame.time.Clock()
 
 # Overlay Setup
-vehicle_overlay = pygame.surface.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+vehicle_overlay = pygame.surface.Surface((window_width, window_height), pygame.SRCALPHA)
 vehicle_overlay.fill((0, 0, 0, 0))
+
+# World Map Setup
+world = world_map.World_Map(window_width, window_height)
+world.default_camera()
 
 # Load button images
 build_img = pygame.image.load('GUI/build_img.png').convert_alpha()
@@ -46,7 +67,7 @@ class Button():
         self.image = pygame.transform.scale(image, (int(width * scale), int(height * scale)))
 
     def draw(self):
-        screen.blit(self.image, (self.rect.x, self.rect.y))
+        display_window.blit(self.image, (self.rect.x, self.rect.y))
 
 create_button = Button(50, 50, build_img, 0.2)
 
@@ -57,8 +78,7 @@ def main():
     # hello world test lol
     hello_world()
 
-    architect = user_tools.road_builder
-    new_road = architect.build_road((1,1),(900,900), "Two-Lane Road")
+    new_road = user_tools.build_road((3000,900),(12000,9000), "Six-Lane Road")
 
     # # Left lanes
 
@@ -73,19 +93,19 @@ def main():
 
     # Create the road with both right and left lanes (populate left lanes with the new parallel lanes)
 
-    background = pygame.surface.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+    background = pygame.surface.Surface((window_width, window_height))
     background.fill((10, 10, 10))
 
     road = Road([right_lane0, right_lane1], [left_lane0, left_lane1], "Two-Lane Road" )
     road.build_geometry()
-    road.draw(background)
+    road.draw(world.full_map)
 
     new_road.build_geometry()
-    new_road.draw(background)
+    new_road.draw(world.full_map)
 
     # Car Testing
-    car = Car(road, 'Right', 0)
-    car.coordinates = right_lane0.start_node.coordinates
+    car = Car(new_road, 'Right', 0)
+    car.coordinates = new_road.right_lanes[0].start_node.coordinates
     counter = 0
 
     # Intersection Testing
@@ -111,17 +131,23 @@ def main():
                 pygame.quit()
                 sys.exit()
 
+            # Event Scroll
+            if event.type == pygame.MOUSEWHEEL:
+                wheel_scroll = event.y
+                world.zoom_camera(wheel_scroll)
+                # display_window.blit(world_map.render_visible(), (0, 0))
+
         # Alter Display
 
 
         # Clear vehicles every frame
-        vehicle_overlay = pygame.surface.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+        vehicle_overlay = pygame.surface.Surface((10500, 17200), pygame.SRCALPHA)
         vehicle_overlay.fill((0, 0, 0, 0))
 
-        counter +=  1
-        car.acceleration = 0.025
-        if counter > 200:
-            car.acceleration = -0.05
+        # counter +=  1
+        car.acceleration = 25
+        # if counter > 2000:
+        #     car.acceleration = -0.05
 
         car.move()
         car.draw(vehicle_overlay)
@@ -129,16 +155,20 @@ def main():
         if car.acceleration == 0:
             car.color = 'Red'
 
-        print(str(car.length_along_lane))
+        # print(str(car.length_along_lane))
         # print(str(car.lane_ptr.length))  934
 
         # input("Press Enter to make the car move: ")
-        screen.blit(background, (0,0))
-        screen.blit(vehicle_overlay, (0, 0))
+        # display_window.blit(background, (0, 0))
+        # display_window.blit(vehicle_overlay, (0, 0))
 
 
-        intersections.draw(screen)
+        intersections.draw(display_window)
         create_button.draw()
+        #
+        world.full_map.blit(vehicle_overlay, (0, 0))
+        display_window.blit(world.render_visible(), (0, 0))
+
 
 
         # Update Display
