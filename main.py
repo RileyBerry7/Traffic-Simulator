@@ -142,6 +142,23 @@ def main():
                 # Check if over button
                 button.check_click(mouse_pos)
 
+        # Get all currently pressed keys
+        keys = pygame.key.get_pressed()
+
+        # Move the camera based on key input
+        dx, dy = 0, 0
+        if keys[pygame.K_w]:
+            dy -= world.camera.speed
+        if keys[pygame.K_s]:
+            dy += world.camera.speed
+        if keys[pygame.K_a]:
+            dx -= world.camera.speed
+        if keys[pygame.K_d]:
+            dx += world.camera.speed
+
+        world.camera.move(dx, dy)
+
+
             #####################################################################
 
         # Car Testing - Very Laggy!
