@@ -112,3 +112,22 @@ class World_Map:
         )
 
         return pygame.transform.scale(visible_window, (self.visible_width, self.visible_height))
+
+    def get_world_coordinates(self, visible_coords: tuple) -> tuple:
+        """
+        Converts coordinates in the visible window (screen space) to world map coordinates.
+
+        :param visible_coords: A tuple (x, y) representing the position in the visible window.
+        :return: A tuple (world_x, world_y) representing the world map coordinates.
+        """
+        # Convert the visible window coordinates to the relative position within the visible window
+        visible_x, visible_y = visible_coords
+
+        # Convert the screen (visible) coordinates to the zoomed-in world coordinates
+        zoom_factor = self.camera.zoom / 100  # Get the zoom scale factor
+
+        # Calculate the offset in world space for the camera
+        world_x = self.camera.x_coord - (self.visible_width / 2 - visible_x) / zoom_factor
+        world_y = self.camera.y_coord - (self.visible_height / 2 - visible_y) / zoom_factor
+
+        return (world_x, world_y)
