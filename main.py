@@ -13,32 +13,17 @@ from vehicles import Car
 import user_tools
 import world_map
 from gui import Button
+import display_window
 
 def hello_world():
     print(f'Hello World :3')
 
-# Setup Pygame
-pygame.init()
 
-# Screen Setup
-screen_info   = pygame.display.Info()
-SCREEN_WIDTH  = screen_info.current_w
-SCREEN_HEIGHT = screen_info.current_h
-SCREEN_COLOR  = ('Red')
+# Setup Display Window / Pygame
+display_window = display_window.Display_Window()
 
-# Reduce height slightly to fit within the visible screen area
-window_height = SCREEN_HEIGHT - 50  # Adjust this value if needed
-window_width  = SCREEN_WIDTH
-
-# Create a resizable window that fits within the screen
-display_window = pygame.display.set_mode((window_width, window_height), pygame.RESIZABLE)
-display_window.fill(SCREEN_COLOR)  # White background
-pygame.display.set_caption('Traffic Simulator')
+# Setup Time
 clock = pygame.time.Clock()
-
-# World Map Setup
-world = world_map.World_Map(window_width, window_height)
-world.default_camera()
 
 # Load Images
 build_img = pygame.image.load('GUI/build_img.png').convert_alpha()
@@ -77,12 +62,13 @@ prev_clicks = []
 # Main Loop
 def main():
 
-    # hello_world()
 
+    ######################################################################################
+    # Testing
     # Road_Builder Testing
     new_road = user_tools.build_road((3000,900),(12000,9000), "Six-Lane Road")
     new_road.build_geometry()
-    new_road.draw(world.full_map)
+    new_road.draw(display_window.world.full_map)
 
     # Car Testing
     car = Car(new_road, 'Right', 0)
@@ -97,14 +83,14 @@ def main():
         global next_action
 
         # Display to Window
-        display_window.blit(world.render_visible(), (0, 0))
+        display_window.canvas.blit(display_window.world.render_visible(), (0, 0))
 
         # Grab Mouse Position
         mouse_pos = pygame.mouse.get_pos()
 
         # Check for button hover
         button.check_hover(mouse_pos)
-        button.draw(display_window)
+        button.draw(display_window.canvas)
 
         ###############################################################################
         # Event_Checker Loop
@@ -118,7 +104,7 @@ def main():
             # Event Scroll
             if event.type == pygame.MOUSEWHEEL:
                 wheel_scroll = event.y
-                world.zoom_camera(wheel_scroll)
+                display_window.world.zoom_camera(wheel_scroll)
 
             # Event Left Click Mouse
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -130,11 +116,11 @@ def main():
                         prev_clicks.pop()
                     waiting_for_clicks -=1
                 if waiting_for_clicks == 0 and next_action == 'Build Road':
-                    start = world.get_world_coordinates((prev_clicks[-2][0], prev_clicks[-2][1]))
-                    end = world.get_world_coordinates((prev_clicks[-1][0], prev_clicks[-1][1]))
+                    start = display_window.world.get_world_coordinates((prev_clicks[-2][0], prev_clicks[-2][1]))
+                    end = display_window.world.get_world_coordinates((prev_clicks[-1][0], prev_clicks[-1][1]))
                     road_buffer = user_tools.build_road(start, end, 'Two-Lane Road')
                     road_buffer.build_geometry()
-                    road_buffer.draw(world.full_map)
+                    road_buffer.draw(display_window.world.full_map)
                     next_action = ''
                     print('Road should be build.')
 
@@ -147,18 +133,18 @@ def main():
         # Move the camera based on key input
         dx, dy = 0, 0
         if keys[pygame.K_w]:
-            dy -= world.camera.speed
+            dy -= display_window.world.camera.speed
         if keys[pygame.K_s]:
-            dy += world.camera.speed
+            dy += display_window.world.camera.speed
         if keys[pygame.K_a]:
-            dx -= world.camera.speed
+            dx -=  display_window.world.camera.speed
         if keys[pygame.K_d]:
-            dx += world.camera.speed
+            dx +=  display_window.world.camera.speed
 
-        world.camera.move(dx, dy)
+        display_window.world.camera.move(dx, dy)
 
 
-            #####################################################################
+    #####################################################################
 
         # Car Testing - Very Laggy!
         # Clear vehicles every frame

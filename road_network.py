@@ -25,10 +25,12 @@ class road_network:
 
         # Connect Root road to new road with intersection
         if root_road:
-            # First check if intersection exists
-                # If Yes connect to existing intersection
+        # First check if intersection exists
+            # If Yes connect to existing intersection
 
-                # If No break root road into 2 halves
+        else:
+            # If No break root road into 2 halves
+
 
                 # then create and insert new intersection
 
