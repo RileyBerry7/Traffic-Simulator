@@ -1,16 +1,15 @@
 # main.py
-######################################################################
+
 import sys
 
 import pygame
 from sys import exit
 
 import gui
-from road import Node
+from node import Node
 from road import Lane
 from road import Road
 from vehicles import Car
-from intersections import four_way_stop
 import user_tools
 import world_map
 from gui import Button

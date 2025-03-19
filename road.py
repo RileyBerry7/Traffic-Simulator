@@ -1,46 +1,10 @@
+# road.py
+
 import pygame
 import math
 from typing import List
 import road_types
-
-
-############################################################################################
-
-class Node:
-    """
-    Represents a node in the road network, with connections to other nodes and rendering attributes.
-    Each node may have connections to other nodes for traversal in the simulation.
-    """
-    def __init__(self, coordinates: tuple[float, float] = (0, 0)):
-        # Graph relationships
-        self.next_node: Node = None               # The next node connected to this one
-        self.prev_node: Node = None               # The previous node connected to this one
-        self.curr_lane: Node = None               # The lane associated with this node
-        self.in_intersection = False              # Flag for intersection status
-        self.intersection_connections = []        # List of connected nodes in an intersection
-
-        # Rendering Attributes
-        self.size = 30                            # Size of the node (used in drawing)
-        self.color = 'Red'                        # Color of the node (used in drawing)
-        self.coordinates = coordinates           # The (x, y) coordinates of the node
-        self.geometry = pygame.Surface((self.size, self.size), pygame.SRCALPHA)
-        self.geometry.fill((0, 0, 0, 0))         # Transparent rectangle for node rendering
-
-    def set_next_node(self, next_node):
-        """
-        Set the next node in the graph and update intersection connections.
-        Always changes index 0 of intersection_connections to the next node.
-        """
-        self.next_node = next_node
-        self.intersection_connections[0] = next_node
-
-    def draw(self, screen):
-        """
-        Draws the node on the given screen at the node's coordinates.
-        A circle is drawn to represent the node.
-        """
-        pygame.draw.circle(screen, self.color, self.coordinates, self.size)
-
+from node import Node
 
 ############################################################################################
 
