@@ -46,7 +46,12 @@ class Road:
     This class calculates and displays the geometry of the road, including lane markings and borders.
     The road geometry includes lines for dividing lanes and separating the road edges.
     """
-    def __init__(self, right_lanes: List[Lane], left_lanes: List[Lane], road_type: str):
+    def __init__(self,
+                 right_lanes: List[Lane],
+                 left_lanes:  List[Lane],
+                 road_type:   str,
+                 start:       [float, float],
+                 end:         [float, float]):
 
         # Road Specific Type
         self.type_string = road_type
@@ -59,12 +64,25 @@ class Road:
         self.start_coord = right_lanes[0].start_node.coordinates
         self.end_coord   = right_lanes[0].end_node.coordinates
 
+        # Retrofitting out the above coords and replacing with two nodes
+        self.start_node = Node(start)
+        self.end_node   = Node(end)
+        self.start_node.set_next(self.end_node)
+
         # Geometry Data (surface to render the road)
         self.geometry = pygame.Surface((17200, 10300), pygame.SRCALPHA)
         self.geometry.fill((0, 0, 0, 0))  # Transparent surface for road rendering
         self.build_geometry()
 
+    def __hash__(self):
+        # Create a hash based on start and end coordinates (or other unique attributes)
+        return hash((self.start_coord, self.end_coord))
 
+    def __eq__(self, other):
+        if isinstance(other, Road):
+            # Compare start and end coordinates (or other attributes)
+            return self.start_coord == other.start_coord and self.end_coord == other.end_coord
+        return False
 
     def road_type(self, attribute: str):
         return road_types.ROAD_TYPES[self.type_string][attribute]

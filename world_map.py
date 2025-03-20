@@ -1,6 +1,6 @@
 # world_map
 import pygame
-
+import road_network
 import camera
 import user_tools
 
@@ -22,6 +22,8 @@ class World_Map:
         self.visible_width    = display_width
         self.background_color = 'White'
         self.full_map.fill(self.background_color)
+
+        self.road_network = road_network.Road_Network()
 
         # Testing
         border = pygame.Surface((self.map_width, self.map_height))

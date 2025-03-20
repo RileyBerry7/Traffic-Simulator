@@ -4,18 +4,19 @@ import pygame
 
 
 ############################################################################################
+# Basic Node is used by the Lane Graph
 
 class Node:
     """
     Represents a node in the road network, with connections to other nodes and rendering attributes.
     Each node may have connections to other nodes for traversal in the simulation.
     """
-    def __init__(self, coordinates: tuple[float, float] = (0, 0), owner_lane=None):
+    def __init__(self, coordinates: tuple[float, float] = (0, 0), owner=None):
 
         # Graph relationships
         self.next_node: Node      = None       # The next node connected to this one
         self.prev_node: Node      = None       # The previous node connected to this one
-        self.curr_lane            = owner_lane # The lane associated with this node
+        self.curr_lane            = owner # The lane associated with this node
         self.in_intersection      = False      # Flag for intersection status
 
         # Location Data
@@ -44,16 +45,18 @@ class Node:
 
 
 ############################################################################################
+# These below nodes are used by the Road Graph not the Lane Graph
 
 class Intersection_Node(Node):
     """
     A specialized node that represents an intersection.
     Can have multiple connections, and is part of a multi-road network.
     """
-    def __init__(self, coordinates: tuple[float, float] = (0, 0)):
+    def __init__(self, coordinates: tuple[float, float] = (0, 0), owner=None):
         super().__init__(coordinates)
         self.in_intersection = True         # Mark it as an intersection
         self.intersection_connections = []  # List to store all nodes connected in the intersection
+        self.owner_road = owner
 
     # WARNING - Most of this class may be reworked
 
@@ -72,12 +75,12 @@ class End_Node(Node):
     A specialized node that represents the end of a road.
     May not have a next node or can have special end road logic.
     """
-    def __init__(self, coordinates: tuple[float, float] = (0, 0)):
+    def __init__(self, coordinates: tuple[float, float] = (0, 0), owner=None):
         super().__init__(coordinates)
         self.in_intersection = False  # End nodes don't have multiple connections like intersections
         self.next_node = None  # No next node after the end node
         self.prev_node = None  # End node doesn't have a previous node either
-
+        self.owner_road = owner
 
 ############################################################################################
 

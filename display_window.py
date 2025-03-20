@@ -31,7 +31,7 @@ num_partitions_y = int(WINDOW_HEIGHT // PARTITION_SIZE)
 class Road_Partition:
     def __init__(self, road: road.Road, distance_along:float):
         self.road = road
-        self.distance_along = distance_along
+        self.exact_coordinate
 
 class Display_Window:
     def __init__(self):
@@ -43,6 +43,7 @@ class Display_Window:
         # World Map
         self.world = world_map.World_Map(WINDOW_WIDTH, WINDOW_HEIGHT)
         self.world.default_camera()
+
 
         # Spatial Partitioning - Display Level
         self.partition_matrix = [[0 for _ in range(num_partitions_x)] for _ in range(num_partitions_y)]
@@ -59,6 +60,7 @@ class Display_Window:
         """"""
         # Fill with zeroes
         self.partition_matrix = [[0 for _ in range(num_partitions_x)] for _ in range(num_partitions_y)]
+
 
 
     def calculate_partition_position(self, coordinates: [float, float]) -> [float, float]:

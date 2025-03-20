@@ -85,7 +85,7 @@ def build_road(start_point: [float, float], end_point: [float, float], road_type
 
     ################################################################################################################
     # Build Road
-    return road.Road(right_lanes, left_lanes, road_type)
+    return road.Road(right_lanes, left_lanes, road_type, start_point, end_point)
 
     # End of build_geometry()
 
