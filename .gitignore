@@ -1,0 +1,19 @@
+# Exclude IDE settings
+.idea/
+
+# Exclude Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Exclude virtual environment
+venv/
+.env/
+
+# Exclude log files
+*.log
+
+# Exclude system files
+.DS_Store
+Thumbs.db
