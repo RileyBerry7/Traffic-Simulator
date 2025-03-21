@@ -39,6 +39,9 @@ def action_build_road():
     waiting_for_clicks = 2
     next_action = 'Build Road'
 
+    # Temporary
+    display_window.world.draw_build_points()
+    display_window.populate_road_partitions()
 
 text = "Build Road"
 font = pygame.font.Font(None, 30)
@@ -118,11 +121,14 @@ def main():
                 if waiting_for_clicks == 0 and next_action == 'Build Road':
                     start = display_window.world.get_world_coordinates((prev_clicks[-2][0], prev_clicks[-2][1]))
                     end = display_window.world.get_world_coordinates((prev_clicks[-1][0], prev_clicks[-1][1]))
-                    road_buffer = user_tools.build_road(start, end, 'Two-Lane Road')
-                    road_buffer.build_geometry()
-                    road_buffer.draw(display_window.world.full_map)
+                    # road_buffer = user_tools.build_road(start, end, 'Two-Lane Road')
+                    # road_buffer.build_geometry()
+                    # road_buffer.draw(display_window.world.full_map)
                     next_action = ''
-                    print('Road should be build.')
+                    # Road Network Building
+                    display_window.world.road_network.add_road(start, end, 'Two-Lane Road')
+                    display_window.world.draw_road_graph()
+                    # print('Road should be build.')
 
                 # Check if over button
                 button.check_click(mouse_pos)

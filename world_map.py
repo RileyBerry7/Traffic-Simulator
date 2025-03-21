@@ -8,6 +8,7 @@ import user_tools
 # Plan to eventually make this class into an abstract
 # map of rendering surface taht uses chunks or tiles
 # to render more efficiently.
+"""Currently this class is HYPER UNOPTIMIZED"""
 
 class World_Map:
     def __init__(self, display_width: int, display_height: int):
@@ -23,6 +24,7 @@ class World_Map:
         self.background_color = 'White'
         self.full_map.fill(self.background_color)
 
+        # Road Network Object - contains Road and Lane Graphs
         self.road_network = road_network.Road_Network()
 
         # Testing
@@ -42,6 +44,28 @@ class World_Map:
         new_road.build_geometry()
         new_road.draw(self.full_map)
 
+    def draw_build_points(self):
+        """This Method visualizes the build points onto the world map,
+             it is mainly for debugging purposes. """
+
+        self.road_network.generate_build_points()
+        # build_points = List( Tuple( Tuple(x,y), Road, Node) )
+        build_points = self.road_network.build_points
+
+        for point in build_points:
+            coordinates = point[0]
+
+            # Draw a circle onto world map
+            pygame.draw.circle(self.full_map, (255, 0, 0), coordinates, 15)  # Red circle with radius 5
+
+    def draw_road_graph(self):
+        """ WARNING - WARNING - WARNING -
+                HYPER INEFFICIENT
+        Currently this draws Every Road when called. Needs Abstractions/Rework. """
+
+        for elem in self.road_network.road_dict:
+            elem.draw(self.full_map)
+
     def default_camera(self):
         """Centers the camera in the middle of the visible screen and sets a zoom of 50%."""
         # Set the camera to the center of the full map (half the width and height)
@@ -57,6 +81,7 @@ class World_Map:
 
         # Optionally, call render_visible after zooming to update the view
         self.render_visible()
+
     def move_camera(self, new_position: [float, float]):
         self.camera.set_position(new_position)
         self.render_visible()

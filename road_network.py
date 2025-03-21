@@ -21,8 +21,12 @@ class Road_Network:
         self.build_points: List[Tuple[Tuple[float, float], road.Road, node.Node]] = []
         self.generate_build_points()
 
-    def add_road(self, start_point: [float, float], end_point: [float, float],
-                 road_type: str, root_road=None, branch_road=None) -> bool:
+    def add_road(self,
+                 start_point: [float, float],
+                 end_point:   [float, float],
+                 road_type:   str,
+                 root_road  =None,
+                 branch_road=None) -> bool:
         """"""
 
         # Create road and add to adjacency list
@@ -31,7 +35,9 @@ class Road_Network:
         # Check if road already exists in list
         if new_road and not self.road_dict.get(new_road, None):
             # If no road exists, Add to list
-            self.road_dict[new_road] = List[new_road.start_node, new_road.end_node]
+            self.road_dict[new_road] = [new_road.start_node, new_road.end_node]
+            # print('Road Added to Road Graph.')
+            return True
         else:
             return False
 
@@ -53,7 +59,7 @@ class Road_Network:
         # Successful Add
         return True
 
-    def generate_build_points(self, point_step: float=10):
+    def generate_build_points(self, point_step: float=100):
         """ Given the adjacency list of roads, this function will traverse the road network
               and return a list of tuples (coordinates, road, node), node may be empty. """
 
@@ -89,11 +95,11 @@ class Road_Network:
             for i in range(1, num_steps):  # Start from 1 to exclude the start point
                 x = key_road.start_node.coordinates[0] + i * point_step * direction_x
                 y = key_road.start_node.coordinates[1] + i * point_step * direction_y
-                point_list.append(Tuple((x, y), key_road, None))
+                point_list.append(((x, y), key_road, None))
 
         # Add all dictionary Key-Values to the point_list
         for coordinate in node_dict.keys():
-            point_list.append(coordinate, node_dict[coordinate][0], node_dict[coordinate][1])
+            point_list.append((coordinate, node_dict[coordinate][0], node_dict[coordinate][1]))
 
         self.build_points = point_list
 
