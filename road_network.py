@@ -3,7 +3,6 @@ from enum import unique
 
 import node
 import road
-import user_tools
 from typing import Dict, Tuple, List
 
 ############################################################################################
@@ -30,7 +29,7 @@ class Road_Network:
         """"""
 
         # Create road and add to adjacency list
-        new_road = user_tools.build_road(start_point, end_point, road_type)
+        new_road = road.Road(start_point, end_point, road_type)
 
         # Check if road already exists in list
         if new_road and not self.road_dict.get(new_road, None):

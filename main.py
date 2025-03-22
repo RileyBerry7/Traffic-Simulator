@@ -6,12 +6,9 @@ import pygame
 from sys import exit
 
 import gui
-from node import Node
-from road import Lane
 from road import Road
 from vehicles import Car
 import user_tools
-import world_map
 from gui import Button
 import display_window
 
@@ -40,8 +37,9 @@ def action_build_road():
     next_action = 'Build Road'
 
     # Temporary
-    display_window.world.draw_build_points()
-    display_window.populate_road_partitions()
+    # display_window.render_visible_chunks()
+    # display_window.world.draw_build_points()
+    # display_window.populate_road_partitions()
 
 text = "Build Road"
 font = pygame.font.Font(None, 30)
@@ -69,13 +67,17 @@ def main():
     ######################################################################################
     # Testing
     # Road_Builder Testing
-    new_road = user_tools.build_road((3000,900),(12000,9000), "Six-Lane Road")
+    new_road = Road((3000,900),(12000,9000), "Six-Lane Road")
     new_road.build_geometry()
     new_road.draw(display_window.world.full_map)
 
     # Car Testing
     car = Car(new_road, 'Right', 0)
     car.coordinates = new_road.right_lanes[0].start_node.coordinates
+
+    # Chunk Setup
+    # display_window.world.init_chunk_map()
+    display_window.render_visible_chunks()
 
 ########################################################################################################################
     # Game Loop
@@ -86,10 +88,14 @@ def main():
         global next_action
 
         # Display to Window
-        display_window.canvas.blit(display_window.world.render_visible(), (0, 0))
+        # display_window.render_visible_chunks()
+        # display_window.canvas.blit(display_window.world.render_visible(), (0, 0))
 
         # Grab Mouse Position
         mouse_pos = pygame.mouse.get_pos()
+
+        # Render Chunks
+        # display_window.render_visible_chunks()
 
         # Check for button hover
         button.check_hover(mouse_pos)
@@ -107,7 +113,8 @@ def main():
             # Event Scroll
             if event.type == pygame.MOUSEWHEEL:
                 wheel_scroll = event.y
-                display_window.world.zoom_camera(wheel_scroll)
+                display_window.camera.zoom_camera(wheel_scroll)
+                display_window.render_visible_chunks()
 
             # Event Left Click Mouse
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -121,7 +128,7 @@ def main():
                 if waiting_for_clicks == 0 and next_action == 'Build Road':
                     start = display_window.world.get_world_coordinates((prev_clicks[-2][0], prev_clicks[-2][1]))
                     end = display_window.world.get_world_coordinates((prev_clicks[-1][0], prev_clicks[-1][1]))
-                    # road_buffer = user_tools.build_road(start, end, 'Two-Lane Road')
+                    # road_buffer = Road(start, end, 'Two-Lane Road')
                     # road_buffer.build_geometry()
                     # road_buffer.draw(display_window.world.full_map)
                     next_action = ''
@@ -133,21 +140,31 @@ def main():
                 # Check if over button
                 button.check_click(mouse_pos)
 
+                # Check if within range of build point
+                # real_cursor      = display_window.world.get_world_coordinates(mouse_pos)
+                # matrix_position  = display_window.calculate_partition_position(real_cursor)
+                # search_partition = display_window.partition_matrix[matrix_position[0]][matrix_position[1]]
+                # if not search_partition is 0:
+                #     print(' In Range', str(search_partition[0]))
+                # else:
+                #     print('Not in range')
+
         # Get all currently pressed keys
         keys = pygame.key.get_pressed()
 
         # Move the camera based on key input
         dx, dy = 0, 0
         if keys[pygame.K_w]:
-            dy -= display_window.world.camera.speed
+            dy -= display_window.camera.speed
         if keys[pygame.K_s]:
-            dy += display_window.world.camera.speed
+            dy += display_window.camera.speed
         if keys[pygame.K_a]:
-            dx -=  display_window.world.camera.speed
+            dx -=  display_window.camera.speed
         if keys[pygame.K_d]:
-            dx +=  display_window.world.camera.speed
+            dx +=  display_window.camera.speed
 
-        display_window.world.camera.move(dx, dy)
+        display_window.camera.move(dx, dy)
+        display_window.render_visible_chunks()
 
 
     #####################################################################

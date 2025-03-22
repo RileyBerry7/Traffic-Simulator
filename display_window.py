@@ -2,6 +2,7 @@
 
 import pygame
 
+import camera
 import node
 import road
 import world_map
@@ -14,7 +15,7 @@ pygame.init()
 screen_info   = pygame.display.Info()
 SCREEN_WIDTH  = screen_info.current_w
 SCREEN_HEIGHT = screen_info.current_h
-SCREEN_COLOR  = (255, 0, 0)  # Red color in RGB format - Should not be visible
+SCREEN_COLOR  = 'White'  # Red color in RGB format - Should not be visible
 
 # Reduce height slightly to fit within the visible screen area
 WINDOW_HEIGHT = SCREEN_HEIGHT - 50  # Adjust this value if needed
@@ -25,7 +26,7 @@ PARTITION_AMOUNT = 1000         # for 1080p, 10,000 partitions = 14.06 pixels of
 PARTITION_SIZE   = math.sqrt(WINDOW_AREA/PARTITION_AMOUNT)
 
 # Calculate number of partitions in x and y
-num_partitions_x = int(WINDOW_WIDTH // PARTITION_SIZE)
+num_partitions_x = int(WINDOW_WIDTH  // PARTITION_SIZE)
 num_partitions_y = int(WINDOW_HEIGHT // PARTITION_SIZE)
 
 # Used as a unique partition that is used to represent road boundaries
@@ -47,14 +48,44 @@ class Display_Window:
         self.canvas.fill(SCREEN_COLOR)  # White background
         pygame.display.set_caption('Traffic Simulator')
 
+        # Camera
+        self.camera = camera.Camera(WINDOW_WIDTH, WINDOW_HEIGHT)
+
         # World Map
-        self.world = world_map.World_Map(WINDOW_WIDTH, WINDOW_HEIGHT)
-        self.world.default_camera()
+        self.world = world_map.WorldMap(self.camera, 17200, 10300)
+        self.world.init_chunk_map()
+
+        # Default Camera Pos
+        self.camera.default_camera(self.world.map_width, self.world.map_height)
 
         # Spatial Partitioning - Display Level
-        self.partition_matrix = [[0 for _ in range(num_partitions_x)] for _ in range(num_partitions_y)]
+        # self.partition_matrix = [[0 for _ in range(num_partitions_x)] for _ in range(num_partitions_y)]
 
-    def populate_road_partitions(self, orbit_radius=50):
+    def render_visible_chunks(self):
+        """ """
+        # Temporary Loops through entire dict of chunks
+        visible_chunks = self.world.find_visible_chunks()
+        for row_col in visible_chunks:
+            chunk_buffer = self.world.chunk_dict.get(row_col, None)
+            if chunk_buffer:
+                print('- Found -')
+                print(row_col)
+                # self.world.chunk_dict[row_col].default_red()
+                self.world.chunk_dict[row_col].draw(self.canvas,
+                                                self.camera.x_coord,
+                                                self.camera.y_coord,
+                                                self.camera.bounding_box)
+            else:
+                print('Not Found')
+        #
+        # self.world.init_chunk_map()
+        # for key in self.world.chunk_dict.keys():
+        #     camera_x = self.world.cam.x_coord
+        #     camera_y = self.world.cam.y_coord
+        #     camera_rect = pygame.Rect(camera_x, camera_y, WINDOW_WIDTH, WINDOW_HEIGHT)
+        #     self.world.chunk_dict[key].draw(self.canvas, self.camera.x_coord, self.camera.y_coord, self.camera.bounding_box)
+
+    def populate_road_partitions(self, orbit_radius=1000):
         """Using the road network's calculated partition points, this method given an orbit range will calculate and
             populate all of the partitions within range of any points orbit, passing in its relevant point data. """
 
@@ -65,8 +96,6 @@ class Display_Window:
             core_partition = Road_Partition(point[0], point[1], point[2])
             self.insert_partition(buffer_data, core_partition)
             self.fill_orbit(core_partition, orbit_radius)
-
-
 
     def insert_partition(self, coordinates: [float, float], road_partition: Road_Partition):
 
@@ -85,6 +114,8 @@ class Display_Window:
         """
            Calculate the partition position (row, column) in the partition matrix
            based on the given (x, y) coordinates.
+
+           Takes ????? Coordinates
 
            Returns: tuple: A tuple containing (row, column) of the partition in the partition matrix. """
 
@@ -125,7 +156,6 @@ class Display_Window:
                     if self.is_valid_position(x, y):  # Assuming this function checks bounds
                         # Insert the core partition at the calculated position
                         self.insert_partition((x, y), core_partition)
-
 
     def is_valid_position(self, x, y):
         """Check if the given (x, y) position is within the valid partition bounds."""
