@@ -66,24 +66,12 @@ class Display_Window:
         # Temporary Loops through entire dict of chunks
         visible_chunks = self.world.find_visible_chunks()
         for row_col in visible_chunks:
-            chunk_buffer = self.world.chunk_dict.get(row_col, None)
-            if chunk_buffer:
-                print('- Found -')
-                print(row_col)
-                # self.world.chunk_dict[row_col].default_red()
-                self.world.chunk_dict[row_col].draw(self.canvas,
-                                                self.camera.x_coord,
-                                                self.camera.y_coord,
-                                                self.camera.bounding_box)
-            else:
-                print('Not Found')
-        #
-        # self.world.init_chunk_map()
-        # for key in self.world.chunk_dict.keys():
-        #     camera_x = self.world.cam.x_coord
-        #     camera_y = self.world.cam.y_coord
-        #     camera_rect = pygame.Rect(camera_x, camera_y, WINDOW_WIDTH, WINDOW_HEIGHT)
-        #     self.world.chunk_dict[key].draw(self.canvas, self.camera.x_coord, self.camera.y_coord, self.camera.bounding_box)
+            self.world.draw_with_cache(self.canvas, row_col)
+        print(str(len(visible_chunks)), ' Chunks Visible')
+
+    def draw_camera_bounding_box(self):
+        """Wrapper Method """
+        self.camera.print_camera_bounding_box(self.canvas)
 
     def populate_road_partitions(self, orbit_radius=1000):
         """Using the road network's calculated partition points, this method given an orbit range will calculate and

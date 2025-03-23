@@ -3,6 +3,9 @@
 import pygame
 from collections import deque
 
+import camera
+import world_map
+
 
 def calculate_initial_chunks(map_width, map_height, chunk_size):
     num_chunks_x = map_width // chunk_size
@@ -30,6 +33,10 @@ class Chunk:
         self.needs_update = False
         self.update_queue: deque[pygame.Surface] = deque()
 
+        # Local cache per chunk
+        # self.scaled_surfaces = OrderedDict()
+        # self.max_cache_size = 5  # Adjust for memory needs
+
     def add_update(self, update_draw: pygame.Surface):
         """Adds update of most recent changes to the update queue. """
 
@@ -45,17 +52,6 @@ class Chunk:
             update.blit(self.surface,(0, 0)) # Apply Update
 
         self.needs_update = False # Mark Update Queue as Empty
-
-    def draw(self, screen, offset_x, offset_y, camera_rect):
-        """Only draw the chunk if it's visible to the display_window."""
-
-        if self.bounding_box.colliderect(camera_rect):
-            if self.needs_update:
-                self.process_updates()     # Process the queued updates when the chunk is visible
-                self.needs_update = False  # Mark chunk as clean after processing
-
-            # Draw the chunk surface to the screen at the correct position
-            screen.blit(self.surface, (self.bounding_box.x - offset_x, self.bounding_box.y - offset_y))
 
     def default_red(self):
         """Debugging method """
@@ -78,3 +74,38 @@ class Chunk:
         # Update the surface with the border and unaltered middle
         self.add_update(test_update)
 
+    # def draw(self, screen, cam):
+    #     """ If the calling chunk is within the bounding box of the camera, it will be drawn to passed in surface
+    #         at a scale and position relative to how it lies within the camera's bounding box."""
+    #
+    #     scale_factor = cam.camera_scale / 100.0
+    #     scaled_size = (int(self.width * scale_factor), int(self.height * scale_factor))
+    #     cache_key = (cam.camera_scale, scaled_size)
+    #
+    #     # Check local cache first
+    #     if cache_key in self.scaled_surfaces:
+    #         scaled_surface = self.scaled_surfaces.pop(cache_key)
+    #         self.scaled_surfaces[cache_key] = scaled_surface
+    #     elif cache_key in self.world.global_cache:
+    #         # Load from global cache if not in local
+    #         scaled_surface = self.world.global_cache.pop(cache_key)
+    #         self.scaled_surfaces[cache_key] = scaled_surface
+    #     else:
+    #         # Scale the chunk and store in the local cache
+    #         scaled_surface = pygame.transform.scale(self.surface, scaled_size)
+    #         self.scaled_surfaces[cache_key] = scaled_surface
+    #
+    #     # Manage chunk cache size
+    #     if len(self.scaled_surfaces) > self.max_cache_size:
+    #         old_key, old_surface = self.scaled_surfaces.popitem(last=False)
+    #         self.world.global_cache[old_key] = old_surface
+    #
+    #     # Draw
+    #     chunk_x = (self.spatial_data[0] - cam.bounding_box.x) * scale_factor + (cam.max_width / 2) - (
+    #                 cam.bounding_box.width / 2)
+    #     chunk_y = (self.spatial_data[1] - cam.bounding_box.y) * scale_factor + (cam.max_height / 2) - (
+    #                 cam.bounding_box.height / 2)
+    #     screen.blit(scaled_surface, (chunk_x, chunk_y))
+
+    # def invalidate_cache(self):
+    #     self.scaled_surfaces.clear()

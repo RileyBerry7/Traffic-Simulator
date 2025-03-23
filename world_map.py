@@ -1,11 +1,14 @@
 # world_map
 import pygame
 import math
+
+import cache_manager
 import camera
 import road_network
 import user_tools
 import chunk
 from camera import Camera
+from collections import OrderedDict
 
 # Plan to eventually make this class into an abstract
 # map of rendering surface taht uses chunks or tiles
@@ -20,8 +23,12 @@ class WorldMap:
         self.map_width  = world_width
         self.full_map  = pygame.Surface((self.map_width, self.map_height))
 
+        # Chunk Map
         self.chunk_dict: dict[[int, int], chunk.Chunk] = {}
         self.chunk_size  = 200
+
+        # Global Chunk Cache
+        self.cache_manager = cache_manager.CacheManager(200) # Size 200 surfaces
 
         self.measurement_scale = 10
         self.cam = cam
@@ -62,6 +69,7 @@ class WorldMap:
 
     def find_visible_chunks(self):
         """Find all visible chunks within the camera's bounding box."""
+        chunk_gap = 0 # Debugging value of the # chunk layers to not render within the viewport
 
         # Calculate the bounds of the camera's visible area in world coordinates
         camera_left = self.cam.x_coord - self.cam.bounding_box.width / 2
@@ -70,16 +78,60 @@ class WorldMap:
         camera_bottom = camera_top + self.cam.bounding_box.height
 
         # Calculate the chunk row and column indices using floor division
-        start_row = max(0, math.floor(camera_top / self.chunk_size))
-        end_row = min(math.ceil(camera_bottom / self.chunk_size), self.map_height // self.chunk_size)
+        start_row = max(0, math.floor(camera_top / self.chunk_size)) + chunk_gap
+        end_row = min(math.ceil(camera_bottom / self.chunk_size), self.map_height // self.chunk_size) - chunk_gap
 
-        start_col = max(0, math.floor(camera_left / self.chunk_size))
-        end_col = min(math.ceil(camera_right / self.chunk_size), self.map_width // self.chunk_size)
+        start_col = max(0, math.floor(camera_left / self.chunk_size)) + chunk_gap
+        end_col = min(math.ceil(camera_right / self.chunk_size), self.map_width // self.chunk_size) - chunk_gap
 
         # Generate all visible chunk coordinates
         visible_chunks = [(row, col) for row in range(start_row, end_row) for col in range(start_col, end_col)]
 
         return visible_chunks
+
+    def draw_with_cache(self, screen:pygame.surface, chunk_key:(int, int)):
+        """ Given a chunk key this method will with coditions draw the chunk to the provided screen.
+            The relative scale and position of the chunk will calculated based on its relation to the bounding
+            box of the camera. Before the chunk surface is scaled it will check the global cache to see if the scaled
+            surface has already been saved in order to avoid unecessary computation. How every if the chunk has
+            outstanding updates the cached chunk will be invalidated and the chunk will update before being scaled,
+            cached and drawn with correctly."""
+
+        # Ensure the chunk exists
+        provided_chunk = self.chunk_dict.get(chunk_key)
+        if not provided_chunk:
+            print(f"Error: Chunk with key {chunk_key} not found.")
+            return
+
+        # Check for pending updates and invalidate cache if necessary
+        cache_key = (chunk_key, self.cam.camera_scale)
+
+        if provided_chunk.needs_update:
+            provided_chunk.process_updates()
+            provided_chunk.needs_update = False
+
+            if cache_key in self.cache_manager.global_cache:
+                del self.cache_manager.global_cache[cache_key]
+
+        # Determine scale factor based on camera scale
+        scale_factor = 100 / self.cam.camera_scale
+        scaled_size = (int(provided_chunk.width * scale_factor), int(provided_chunk.height * scale_factor))
+
+        # Retrieve from cache or generate scaled surface
+        if cache_key in self.cache_manager.global_cache:
+            scaled_surface = self.cache_manager.global_cache[cache_key]
+        else:
+            scaled_surface = pygame.transform.scale(provided_chunk.surface, scaled_size)
+            self.cache_manager.global_cache[cache_key] = scaled_surface
+
+        # Calculate chunk position relative to camera
+        chunk_x = (provided_chunk.spatial_data[0] - self.cam.bounding_box.left) * scale_factor
+        chunk_y = (provided_chunk.spatial_data[1] - self.cam.bounding_box.top) * scale_factor
+
+        # Draw the scaled chunk
+        screen.blit(scaled_surface, (chunk_x, chunk_y))
+
+
 
     def draw_build_points(self):
         """This Method visualizes the build points onto the world map,

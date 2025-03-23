@@ -40,6 +40,7 @@ def action_build_road():
     # display_window.render_visible_chunks()
     # display_window.world.draw_build_points()
     # display_window.populate_road_partitions()
+    display_window.camera.print_camera_bounding_box(display_window.canvas)
 
 text = "Build Road"
 font = pygame.font.Font(None, 30)
@@ -77,6 +78,7 @@ def main():
 
     # Chunk Setup
     # display_window.world.init_chunk_map()
+    display_window.canvas.fill('Blue')
     display_window.render_visible_chunks()
 
 ########################################################################################################################
@@ -96,6 +98,9 @@ def main():
 
         # Render Chunks
         # display_window.render_visible_chunks()
+        display_window.canvas.fill('Blue')
+        display_window.render_visible_chunks()
+        # display_window.draw_camera_bounding_box()
 
         # Check for button hover
         button.check_hover(mouse_pos)
@@ -113,7 +118,8 @@ def main():
             # Event Scroll
             if event.type == pygame.MOUSEWHEEL:
                 wheel_scroll = event.y
-                display_window.camera.zoom_camera(wheel_scroll)
+                display_window.camera.scale_camera(wheel_scroll)
+                display_window.canvas.fill('Blue')
                 display_window.render_visible_chunks()
 
             # Event Left Click Mouse
@@ -162,9 +168,8 @@ def main():
             dx -=  display_window.camera.speed
         if keys[pygame.K_d]:
             dx +=  display_window.camera.speed
-
         display_window.camera.move(dx, dy)
-        display_window.render_visible_chunks()
+
 
 
     #####################################################################
